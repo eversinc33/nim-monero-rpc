@@ -11,6 +11,7 @@ type
 type InvalidPortException* = object of ValueError
 
 # Create a new client for the monero
+# TODO: add authentication (digest authentication)
 proc newWalletRpcClient*(host: string = "127.0.0.1", port: int16 = 18082): WalletRpcClient =
   if port < 1 or port > 65535:
     raise InvalidPortException.new_exception("Port must be between 1 and 65535")
