@@ -22,7 +22,9 @@ type
     label*: string
     num_unspent_outputs*: uint
 
-type EmptyResponse* = object
+type RpcResponse* = ref object of RootObj
+
+type EmptyResponse* = ref object of RpcResponse
 
 type RpcCallResult*[T] = object
   data*: T
@@ -31,7 +33,7 @@ type RpcCallResult*[T] = object
   ok*: bool
 
 type
-  GetBalanceResponse* = object
+  GetBalanceResponse* = ref object of RpcResponse
     balance*: uint
     unlocked_balance*: uint
     multisig_import_needed*: bool

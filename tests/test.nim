@@ -6,7 +6,7 @@ test "set_daemon":
   let res = client.setDaemon(
     SetDaemonRequest()
   )
-  echo repr(res.data)
+  echo repr(res.data[])
   echo $res.rawBody
   check res.ok
 
@@ -15,5 +15,7 @@ test "get_balance":
   let res = client.getBalance(
     GetBalanceRequest()
   )
+  echo repr(res.data[])
+  echo $res.rawBody
   echo res.data.balance
   check res.ok
