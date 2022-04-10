@@ -15,7 +15,9 @@ test "set_daemon":
 
 test "get_balance":
   let client = newWalletRpcClient()
-  let res = client.getBalance(0)
+  let res = client.getBalance(
+    GetBalanceRequest(account_index: 0)
+  )
   echo res.body
   check res.status == HttpCode(200)
 
