@@ -1,6 +1,6 @@
 import json
 import httpclient
-import utils
+import enums
 import options
 
 type
@@ -11,7 +11,7 @@ type
 
 type InvalidPortException* = object of ValueError
 
-# Create a new client for the monero
+# Create a new client for the monero wallet
 # TODO: add authentication (digest authentication)
 proc newWalletRpcClient*(host: string = "127.0.0.1", port: int16 = 18082): WalletRpcClient =
   if port < 1 or port > 65535:
@@ -36,31 +36,30 @@ proc doRpc(walletRpcClient: WalletRpcClient, call: string, arguments: JsonNode):
 # ===== Monero Wallet RPC calls ======
 # see https://www.getmonero.org/resources/developer-guides/wallet-rpc.html#get_address
 
-# Connect the RPC server to a Monero daemon.
-proc setDaemon*(
-  walletRpcClient: WalletRpcClient, 
-  address: string = "", 
-  trusted: bool = false, 
-  ssl_support: Daemon_SSL_Support = Daemon_SSL_Support.Autodetect,
-  ssl_certificate_path: string = "",
-  ssl_ca_file: string = "",
-  ssl_allowed_fingerprints: string = "",
-  ssl_allow_any_cert: bool = false
-  ): Response =
-  return walletRpcClient.doRpc(
-    "set_daemon", 
-    %*{
-      "address": address,
-      "trusted": trusted,
-      "ssl_support": ssl_support,
-      "ssl_certificate_path": ssl_certificate_path,
-      "ssl_ca_file": ssl_ca_file,
-      "ssl_allowed_fingerprints": ssl_allowed_fingerprints,
-      "ssl_allow_any_cert": ssl_allow_any_cert      
-    })
+type
+  Index* = object
+    major*: uint
+    minor*: uint
 
+  Destination* = object
+    amount*: uint
+    address*: string
+
+  SignedKeyImage* = object
+    key_image: string
+    signature: string
 
 type 
+  SetDaemonRequest* = object
+    address*: Option[string]
+    trusted*: Option[bool]
+    ssl_support*: Option[Daemon_SSL_Support]
+    ssl_private_key_path*: Option[string]
+    ssl_certificate_path*: Option[string]
+    ssl_ca_file*: Option[string]
+    ssl_allowed_fingerprints*: Option[seq[string]]
+    ssl_allow_any_cert*: Option[bool]
+
   GetBalanceRequest* = object
     account_index*: uint
     address_indices*: Option[seq[uint]]
@@ -75,10 +74,6 @@ type
   CreateAddressRequest* = object
     account_index*: uint
     label*: Option[string]
-
-  Index* = object
-    major*: uint
-    minor*: uint
 
   LabelAddressRequest* = object
     index*: Index
@@ -109,10 +104,6 @@ type
   SetAccountTagDescriptionRequest* = object
     tag*: string
     description*: string
-
-  Destination* = object
-    amount*: uint
-    address*: string
 
   TransferRequest* = object 
     destinations*: seq[Destination]
@@ -207,8 +198,194 @@ type
 
   SplitIntegratedAddressRequest* = object
     integrated_address*: string
-  
 
+  SetTxNotesRequest* = object
+    txids*: seq[string]
+    notes*: seq[string]
+
+  GetTxNotesRequest* = object
+    txids*: seq[string]
+
+  SetAttributeRequest* = object
+    key*: string
+    value*: string
+  
+  GetAttributeRequest* = object
+    key*: string
+
+  GetTxKeyRequest* = object
+    txid*: string
+
+  CheckTxKeyRequest* = object
+    txid*: string
+    tx_key*: string
+    address*: string
+
+  GetTxProofRequest* = object
+    txid*: string
+    address*: string
+    message*: Option[string]
+
+  CheckTxProofRequest* = object
+    txid*: string
+    address*: string
+    message*: Option[string]   
+    signature*: string
+
+  GetSpendProofRequest* = object
+    txid*: string
+    message*: Option[string]    
+
+  CheckSpendProofRequest* = object
+    txid*: string
+    message*: Option[string]   
+    signature*: string
+
+  GetReserveProofRequest* = object
+    all*: bool
+    account_index*: uint
+    amount*: uint
+    message*: Option[string]
+
+  CheckReserveProofRequest* = object
+    address*: string
+    message*: Option[string]   
+    signature*: string
+
+  GetTransfersRequest* = object
+    `in`*: bool
+    `out`*: bool
+    pending: bool
+    failed: bool
+    pool: bool
+    filter_by_height: Option[bool]
+    min_height: Option[uint]
+    max_height: Option[uint]
+    account_index: Option[uint]
+    subaddr_indices: Option[seq[uint]]
+
+  GetTransferByTxidRequest* = object
+    txid*: string
+    account_index*: Option[uint]
+
+  DescribeTransferRequest* = object
+    unsigned_txset*: Option[string]
+    multisig_txset*: Option[string]
+
+  SignRequest* = object
+    data*: string
+
+  VerifyRequest* = object
+    data*: string
+    address*: string
+    signature*: string
+
+  ExportOutputsRequest* = object
+    all*: Option[bool]
+  
+  ImportOutputsRequest* = object
+    outputs_data_hex*: string
+
+  ExportKeyImagesRequest* = object
+    all*: Option[bool]
+
+  ImportKeyImagesRequest* = object
+    signed_key_images*: seq[SignedKeyImage]
+
+  MakeUriRequest* = object
+    address*: string
+    amount*: Option[uint]
+    payment_id*: Option[string]
+    recipient_name*: Option[string]
+    tx_description*: Option[string]
+
+  ParseUriRequest* = object
+    uri*: string
+
+  GetAddressBookRequest* = object
+    entries*: seq[uint]
+
+  AddAddressBookRequest* = object
+    address*: string
+    payment_id*: Option[string]
+    description*: Option[string]
+
+  EditAddressBookRequest* = object
+    index*: uint
+    set_address*: bool
+    address*: Option[string]
+    set_description*: bool
+    description*: Option[string]
+    set_payment_id*: bool
+    payment_id*: Option[string]
+
+  DeleteAddressBookRequest* = object
+    index*: uint
+
+  RefreshRequest* = object
+    start_height*: Option[uint]
+
+  AutoRefreshRequest* = object
+    enable*: Option[bool]
+    period*: Option[uint]
+
+  StartMiningRequest* = object
+    threads_count*: uint
+    do_background_mining*: bool
+    ignore_battery*: bool
+
+  CreateWalletRequest* = object
+    filename*: string
+    password*: Option[string]
+    language*: string
+
+  GenerateFromKeysRequest* = object
+    restore_height*: Option[int]
+    filename*: string
+    address*: string
+    spendkey*: Option[string]
+    viewkey*: string
+    password*: string
+    autosave_current*: Option[bool]
+
+  OpenWalletRequest* = object
+    filename*: string
+    password*: Option[string]
+
+  RestoreDeterministicWalletRequest* = object
+    filename*: string
+    password*: string
+    seed*: string
+    restore_height*: Option[int]
+    language*: Option[string]
+    seed_offset*: Option[string]
+    autosave_current*: bool
+
+  ChangeWalletPasswordRequest* = object
+    old_password*: Option[string]
+    new_password*: Option[string]
+
+  MakeMultisigRequest* = object
+    multisig_info*: seq[string]
+    threshold*: uint
+    password*: string
+
+  ImportMultisigInfoRequest* = object
+    info*: seq[string]
+
+  FinalizeMultisigRequest* = object
+    multisig_info*: seq[string]
+    password*: string
+
+  SignMultisigRequest* = object
+    tx_data_hex*: string
+
+  SubmitMultisigRequest* = object
+    tx_data_hex*: string
+
+# Connect the RPC server to a Monero daemon.
+proc setDaemon*(walletRpcClient: WalletRpcClient, params: SetDaemonRequest): Response =
+  return walletRpcClient.doRpc("set_daemon", %*params)
 
 # Return the wallet's balance.
 proc getBalance*(walletRpcClient: WalletRpcClient, params: GetBalanceRequest): Response =
