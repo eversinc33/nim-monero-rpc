@@ -22,7 +22,7 @@ proc newWalletRpcClient*(host: string = "127.0.0.1", port: int16 = 18082): Walle
     httpClient: newHttpClient()
   )
 
-# Call RPC method
+# Call RPC method helper function
 proc doRpc(walletRpcClient: WalletRpcClient, call: string, arguments: JsonNode): Response =
   walletRpcClient.httpClient.headers = newHttpHeaders({ "Content-Type": "application/json" })
   let body = %*{
@@ -36,11 +36,25 @@ proc doRpc(walletRpcClient: WalletRpcClient, call: string, arguments: JsonNode):
 # ===== Monero Wallet RPC calls ======
 # see https://www.getmonero.org/resources/developer-guides/wallet-rpc.html#get_address
 
-proc setDaemon*(walletRpcClient: WalletRpcClient, params: SetDaemonRequest): Response =
-  return walletRpcClient.doRpc("set_daemon", %*params)
+proc setDaemon*(walletRpcClient: WalletRpcClient, params: SetDaemonRequest): RpcCallResult[EmptyResponse] =
+  let response = walletRpcClient.doRpc("set_daemon", %*params)
+  result = RpcCallResult[EmptyResponse](
+    ok: response.status == "200 Ok",
+    rawBody: response.body,
+    statusCode: response.status,
+    data: EmptyResponse()
+  )
 
-proc getBalance*(walletRpcClient: WalletRpcClient, params: GetBalanceRequest): Response =
-  return walletRpcClient.doRpc("get_balance", %*params)
+proc getBalance*(walletRpcClient: WalletRpcClient, params: GetBalanceRequest): RpcCallResult[GetBalanceResponse] =
+  let response = walletRpcClient.doRpc("get_balance", %*params)
+  let res = parseJson(response.body)
+  let data = res["result"].to(GetBalanceResponse)
+  result = RpcCallResult[GetBalanceResponse](
+    ok: response.status == "200 Ok",
+    rawBody: response.body,
+    statusCode: response.status,
+    data: data
+  )
 
 proc getAddress*(walletRpcClient: WalletRpcClient, params: GetAddressRequest): Response =
   return walletRpcClient.doRpc("get_address", %*params)

@@ -14,6 +14,29 @@ type
     key_image: string
     signature: string
 
+  SubAddressInformation* = object
+    address_index*: uint
+    address*: string
+    balance*: uint
+    unlocked_balance*: uint
+    label*: string
+    num_unspent_outputs*: uint
+
+type EmptyResponse* = object
+
+type RpcCallResult*[T] = object
+  data*: T
+  rawBody*: string
+  statusCode*: string
+  ok*: bool
+
+type
+  GetBalanceResponse* = object
+    balance*: uint
+    unlocked_balance*: uint
+    multisig_import_needed*: bool
+    per_subaddress*: Option[seq[SubAddressInformation]]
+
 type 
   SetDaemonRequest* = object
     address*: Option[string]
