@@ -2,6 +2,7 @@ import json
 import httpclient
 import structs
 import options
+export structs
 
 type
   WalletRpcClient = object
