@@ -22,9 +22,93 @@ type
     label*: string
     num_unspent_outputs*: uint
 
-type RpcResponse* = ref object of RootObj
+  SubAddressAccountInformation* = object
+    account_index*: uint
+    balance*: uint
+    base_address*: string
+    label*: Option[string]
+    tag*: Option[string]
+    unlocked_balance: uint
 
-type EmptyResponse* = ref object of RpcResponse
+  AddressInformation* = object
+    address*: string
+    label*: string
+    address_index*: uint
+    used*: bool
+
+  AddressBookEntry* = object
+    address*: string
+    description*: string
+    index*: uint
+    payment_id*: string
+
+  AccountTagsInformation* = object
+    tag*: string
+    label*: string
+    accounts*: seq[int]
+
+  Payment* = object
+    payment_id*: string
+    tx_hash*: string
+    amount*: uint
+    block_height*: uint
+    unlock_time*: uint
+    subaddr_index*: Index
+    address*: string
+
+  Transfer* = object
+    amount*: uint
+    global_index*: uint
+    key_image*: string
+    spent*: bool
+    subaddr_index*: uint
+    tx_hash*: string
+    tx_size*: uint
+
+  TransferDestinationInfo* = object
+    amount*: uint
+    address*: string
+
+  TransferInformation* = object
+    address*: string
+    amount*: uint
+    confirmations*: uint
+    destinations*: Option[seq[TransferDestinationInfo]]
+    double_spend_seen*: bool
+    fee*: uint
+    height*: uint
+    note*: string
+    payment_id*: string
+    subaddr_index*: Index
+    suggested_confirmations_threshold*: uint
+    timestamp*: uint
+    txid*: string
+    `type`*: string
+    unlock_time*: uint
+
+  TransferDescription* = object 
+    amount_in*: uint64
+    amount_out*: uint64
+    recipients*: seq[TransferDestinationInfo]
+    change_address*: string
+    change_amount*: uint
+    fee*: uint
+    payment_id*: string
+    ring_size*: uint
+    unlock_time*: uint
+    dummy_outputs*: uint
+    extra*: string
+
+  PaymentUri* = object
+    address*: string
+    amount*: uint
+    payment_id*: string
+    recipient_name*: string
+    tx_description*: string
+
+type RpcResponse* = object of RootObj
+
+type EmptyResponse* = object of RpcResponse
 
 type RpcCallResult*[T] = object
   data*: T
@@ -33,11 +117,267 @@ type RpcCallResult*[T] = object
   ok*: bool
 
 type
-  GetBalanceResponse* = ref object of RpcResponse
+  GetBalanceResponse* = object of RpcResponse
     balance*: uint
     unlocked_balance*: uint
     multisig_import_needed*: bool
     per_subaddress*: Option[seq[SubAddressInformation]]
+
+  GetAddressResponse* = object of RpcResponse
+    address*: string
+    addresses*: seq[AddressInformation]
+
+  GetAddressIndexResponse* = object of RpcResponse
+    index*: Index
+  
+  CreateAddressResponse* = object of RpcResponse
+    address*: string
+    address_index*: uint
+
+  ValidateAddressResponse* = object of RpcResponse
+    valid*: bool
+    integrated*: bool
+    subaddress*: bool
+    nettype*: NetType
+    openalias_address*: bool
+
+  GetAccountsResponse* = object of RpcResponse
+    subaddress_accounts*: seq[SubAddressAccountInformation]
+    total_balance*: uint
+    total_unlocked_balance*: uint
+
+  CreateAccountResponse* = object of RpcResponse
+    account_index*: uint
+    address*: string
+
+  GetAccountTagsResponse* = object of RpcResponse
+    account_tags*: AccountTagsInformation
+
+  GetHeightResponse* = object of RpcResponse
+    height*: uint
+
+  TransferResponse* = object of RpcResponse
+    amount*: uint
+    fee*: int
+    multisig_txset*: string
+    tx_blob*: string
+    tx_hash*: string
+    tx_key*: string
+    tx_metadata*: string
+    unsigned_txset*: string
+
+  TransferSplitResponse* = object of RpcResponse
+    tx_hash_list*: seq[string]
+    tx_key_list*: seq[string]
+    amount_list*: seq[int]
+    fee_list*: seq[int]
+    tx_blob_list*: seq[string]
+    tx_metadata_list*: seq[string]
+    multisig_txset*: string
+    unsignet_txset*: string
+
+  SignTransferResponse* = object of RpcResponse
+    signed_txset*: string
+    tx_hash_list*: seq[string]
+    tx_raw_list*: seq[string]
+
+  SubmitTransferResponse* = object of RpcResponse
+    tx_hash_list*: seq[string]
+
+  SweepDustResponse* = object of RpcResponse
+    tx_hash_list*: Option[seq[string]]
+    tx_key_list*: Option[seq[string]]
+    amount_list*: Option[seq[int]]
+    fee_list*: Option[seq[int]]
+    tx_blob_list*: Option[seq[string]]
+    tx_metadata_list*: Option[seq[string]]
+    multisig_txset*: string
+    unsigned_txset*: string
+
+  SweepAllResponse* = object of RpcResponse
+    tx_hash_list*: Option[seq[string]]
+    tx_key_list*: Option[seq[string]]
+    amount_list*: Option[seq[int]]
+    fee_list*: Option[seq[int]]
+    tx_blob_list*: Option[seq[string]]
+    tx_metadata_list*: Option[seq[string]]
+    multisig_txset*: string
+    unsigned_txset*: string
+
+  SweepSingleResponse* = object of RpcResponse
+    tx_hash_list*: Option[seq[string]]
+    tx_key_list*: Option[seq[string]]
+    amount_list*: Option[seq[int]]
+    fee_list*: Option[seq[int]]
+    tx_blob_list*: Option[seq[string]]
+    tx_metadata_list*: Option[seq[string]]
+    multisig_txset*: string
+    unsigned_txset*: string
+
+  RelayTxResponse* = object of RpcResponse
+    tx_hash*: string
+
+  GetPaymentsResponse* = object of RpcResponse
+    payments*: seq[Payment]
+
+  GetBulkPaymentsResponse* = object of RpcResponse
+    payments*: seq[Payment]
+
+  IncomingTransfersResponse* = object of RpcResponse
+    transfers*: seq[Transfer]
+
+  QueryKeyResponse* = object of RpcResponse
+    key*: string
+
+  MakeIntegratedAddressResponse* = object of RpcResponse
+    integrated_address*: string
+    payment_id*: string
+
+  SplitIntegratedAddressResponse* = object of RpcResponse
+    is_subaddress*: bool
+    payment*: string
+    standard_address*: string
+
+  GetTxNotesResponse* = object of RpcResponse
+    notes*: seq[string]
+  
+  GetAttributeResponse* = object of RpcResponse
+    value*: string
+
+  GetTxKeyResponse* = object of RpcResponse
+    tx_key*: string
+
+  CheckTxKeyResponse* = object of RpcResponse
+    confirmations*: uint
+    in_pool*: bool
+    received*: uint
+
+  GetTxProofResponse* = object of RpcResponse
+    signature*: string
+
+  CheckTxProofResponse* = object of RpcResponse
+    confirmations*: uint
+    good*: bool
+    in_pool*: bool
+    received*: uint
+
+  GetSpendProofResponse* = object of RpcResponse
+    signature*: string
+
+  CheckSpendProofResponse* = object of RpcResponse
+    good*: bool
+
+  GetReserveProofResponse* = object of RpcResponse
+    signature*: string
+
+  CheckReserveProofResponse* = object of RpcResponse
+    good*: bool
+    spent*: Option[uint]
+    total*: Option[uint]
+
+  GetTransfersResponse* = object of RpcResponse
+    `in`: seq[TransferInformation]
+    `out`: seq[TransferInformation]
+    pending: seq[TransferInformation]
+    failed: seq[TransferInformation]
+    pool: seq[TransferInformation]
+
+  GetTransferByTxidResponse* = object of RpcResponse
+    transfer*: TransferInformation
+
+  DescribeTransferResponse* = object of RpcResponse
+    desc*: seq[TransferDescription]
+
+  SignResponse* = object of RpcResponse
+    signature*: string
+
+  VerifyResponse* = object of RpcResponse
+    good*: bool
+
+  ExportOutputsResponse* = object of RpcResponse
+    outputs_data_hex*: string
+
+  ImportOutputsResponse* = object of RpcResponse
+    num_imported*: uint
+
+  ExportKeyImagesResponse* = object of RpcResponse
+    signed_key_images*: seq[SignedKeyImage]
+
+  ImportKeyImagesResponse* = object of RpcResponse
+    height*: uint
+    spent*: uint
+    unspent*: uint
+
+  MakeUriResponse* = object of RpcResponse
+    uri*: string
+
+  ParseUriResponse* = object of RpcResponse
+    uri*: PaymentUri
+
+  GetAddressBookResponse* = object of RpcResponse
+    entries*: seq[AddressBookEntry]
+
+  AddAddressBookResponse* = object of RpcResponse
+    index*: uint
+
+  RefreshResponse* = object of RpcResponse
+    blocks_fetched*: uint
+    received_money*: bool
+
+  GetLanguagesResponse* = object of RpcResponse
+    languages*: seq[string]
+
+  GenerateFromKeysResponse* = object of RpcResponse
+    address*: string
+    info*: string
+
+  RestoreDeterministicWalletResponse* = object of RpcResponse
+    address*: string
+    info*: string
+    seed*: string
+    was_deprecated*: bool
+
+  IsMultisigResponse* = object of RpcResponse
+    multisig*: bool
+    ready*: bool
+    threshold*: uint
+    total*: uint
+
+  PrepareMultisigResponse* = object of RpcResponse
+    multisig_info*: string
+
+  MakeMultisigResponse* = object of RpcResponse
+    address*: string
+    multisig_info*: string
+
+  ExportMultisigInfoResponse* = object of RpcResponse
+    info*: string
+
+  ImportMultisigInfoResponse* = object of RpcResponse
+    n_outputs*: uint
+
+  FinalizeMultisigResponse* = object of RpcResponse
+    address*: string
+
+  SignMultisigResponse* = object of RpcResponse
+    tx_data_hex*: string
+    tx_hash_list*: seq[string]
+
+  SubmitMultisigResponse* = object of RpcResponse
+    tx_hash_list*: seq[string]
+
+  GetVersionResponse* = object of RpcResponse
+    version*: uint
+
+  
+
+  
+    
+
+
+  
+        
+  
 
 type 
   SetDaemonRequest* = object
@@ -175,7 +515,7 @@ type
     min_block_height*: uint
 
   IncomingTransfersRequest* = object
-    transfer_type*: TransferType
+    transfer_type*: TransferRequestType
     account_index*: Option[uint]
     subaddr_indices*: Option[seq[uint]]
 

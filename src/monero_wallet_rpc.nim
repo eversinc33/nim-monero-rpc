@@ -54,8 +54,7 @@ proc setDaemon*(walletRpcClient: WalletRpcClient, params: SetDaemonRequest): Rpc
 
 proc getBalance*(walletRpcClient: WalletRpcClient, params: GetBalanceRequest): RpcCallResult[GetBalanceResponse] =
   walletRpcClient.doRpc("get_balance", %*params, GetBalanceResponse)
-  
-discard """
+
 proc getAddress*(walletRpcClient: WalletRpcClient, params: GetAddressRequest): RpcCallResult[GetAddressResponse] =
   walletRpcClient.doRpc("get_address", %*params, GetAddressResponse)
 
@@ -65,8 +64,8 @@ proc getAddressIndex*(walletRpcClient: WalletRpcClient, params: GetAddressIndexR
 proc createAddress*(walletRpcClient: WalletRpcClient, params: CreateAddressRequest): RpcCallResult[CreateAddressResponse] =
   walletRpcClient.doRpc("create_address", %*params, CreateAddressResponse)
 
-proc labelAddress*(walletRpcClient: WalletRpcClient, params: LabelAddressRequest): RpcCallResult[LabelAddressResponse] =
-  walletRpcClient.doRpc("label_address", %*params, LabelAddressResponse)
+proc labelAddress*(walletRpcClient: WalletRpcClient, params: LabelAddressRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("label_address", %*params, EmptyResponse)
 
 proc validateAddress*(walletRpcClient: WalletRpcClient, params: ValidateAddressRequest): RpcCallResult[ValidateAddressResponse] =
   walletRpcClient.doRpc("validate_address", %*params, ValidateAddressResponse)
@@ -77,23 +76,23 @@ proc getAccounts*(walletRpcClient: WalletRpcClient, params: GetAccountsRequest):
 proc createAccount*(walletRpcClient: WalletRpcClient, params: CreateAccountRequest): RpcCallResult[CreateAccountResponse] =
   walletRpcClient.doRpc("create_account", %*params, CreateAccountResponse)
 
-proc labelAccount*(walletRpcClient: WalletRpcClient, params: LabelAccountRequest): RpcCallResult[LabelAccountResponse] =
-  walletRpcClient.doRpc("label_account", %*params, LabelAccountResponse)
+proc labelAccount*(walletRpcClient: WalletRpcClient, params: LabelAccountRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("label_account", %*params, EmptyResponse)
 
-proc getAccountTags*(walletRpcClient: WalletRpcClient, params: GetAccountTagsRequest): RpcCallResult[GetAccountTagsResponse] =
-  walletRpcClient.doRpc("get_account_tags", %*params, GetAccountTagsResponse)
+proc getAccountTags*(walletRpcClient: WalletRpcClient): RpcCallResult[GetAccountTagsResponse] =
+  walletRpcClient.doRpc("get_account_tags", %*{}, GetAccountTagsResponse)
 
-proc tagAccounts*(walletRpcClient: WalletRpcClient, params: TagAccountsRequest): RpcCallResult[TagAccountsResponse] =
-  walletRpcClient.doRpc("tag_accounts", %*params, TagAccountsResponse)
+proc tagAccounts*(walletRpcClient: WalletRpcClient, params: TagAccountsRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("tag_accounts", %*params, EmptyResponse)
 
-proc untagAccounts*(walletRpcClient: WalletRpcClient, params: UntagAccountsRequest): RpcCallResult[UntagAccountsResponse] =
-  walletRpcClient.doRpc("untag_accounts", %*params, UntagAccountsResponse)
+proc untagAccounts*(walletRpcClient: WalletRpcClient, params: UntagAccountsRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("untag_accounts", %*params, EmptyResponse)
 
-proc setAccountTagDescription*(walletRpcClient: WalletRpcClient, params: SetAccountTagDescriptionRequest): RpcCallResult[SetAccountTagDescriptionResponse] =
-  walletRpcClient.doRpc("set_account_tag_description", %*params, SetAccountTagDescriptionResponse)
+proc setAccountTagDescription*(walletRpcClient: WalletRpcClient, params: SetAccountTagDescriptionRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("set_account_tag_description", %*params, EmptyResponse)
 
-proc getHeight*(walletRpcClient: WalletRpcClient, params: GetHeightRequest): RpcCallResult[GetHeightResponse] =
-  walletRpcClient.doRpc("get_height", %*params, GetHeightResponse)
+proc getHeight*(walletRpcClient: WalletRpcClient): RpcCallResult[GetHeightResponse] =
+  walletRpcClient.doRpc("get_height", %*{}, GetHeightResponse)
 
 proc transfer*(walletRpcClient: WalletRpcClient, params: TransferRequest): RpcCallResult[TransferResponse] =
   walletRpcClient.doRpc("transfer", %*params, TransferResponse)
@@ -119,8 +118,8 @@ proc sweepSingle*(walletRpcClient: WalletRpcClient, params: SweepSingleRequest):
 proc relayTx*(walletRpcClient: WalletRpcClient, params: RelayTxRequest): RpcCallResult[RelayTxResponse] =
   walletRpcClient.doRpc("relay_tx", %*params, RelayTxResponse)
 
-proc store*(walletRpcClient: WalletRpcClient, params: StoreRequest): RpcCallResult[StoreResponse] =
-  walletRpcClient.doRpc("store", %*params, StoreResponse)
+proc store*(walletRpcClient: WalletRpcClient): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("store", %*{}, EmptyResponse)
 
 proc getPayments*(walletRpcClient: WalletRpcClient, params: GetPaymentsRequest): RpcCallResult[GetPaymentsResponse] =
   walletRpcClient.doRpc("get_payments", %*params, GetPaymentsResponse)
@@ -140,20 +139,20 @@ proc makeIntegratedAddress*(walletRpcClient: WalletRpcClient, params: MakeIntegr
 proc splitIntegratedAddress*(walletRpcClient: WalletRpcClient, params: SplitIntegratedAddressRequest): RpcCallResult[SplitIntegratedAddressResponse] =
   walletRpcClient.doRpc("split_integrated_address", %*params, SplitIntegratedAddressResponse)
 
-proc stopWallet*(walletRpcClient: WalletRpcClient, params: StopWalletRequest): RpcCallResult[StopWalletResponse] =
-  walletRpcClient.doRpc("stop_wallet", %*params, StopWalletResponse)
+proc stopWallet*(walletRpcClient: WalletRpcClient): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("stop_wallet", %*{}, EmptyResponse)
 
-proc rescanBlockchain*(walletRpcClient: WalletRpcClient, params: RescanBlockchainRequest): RpcCallResult[RescanBlockchainResponse] =
-  walletRpcClient.doRpc("rescan_blockchain", %*params, RescanBlockchainResponse)
+proc rescanBlockchain*(walletRpcClient: WalletRpcClient): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("rescan_blockchain", %*{}, EmptyResponse)
 
-proc setTxNotes*(walletRpcClient: WalletRpcClient, params: SetTxNotesRequest): RpcCallResult[SetTxNotesResponse] =
-  walletRpcClient.doRpc("set_tx_notes", %*params, SetTxNotesResponse)
+proc setTxNotes*(walletRpcClient: WalletRpcClient, params: SetTxNotesRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("set_tx_notes", %*params, EmptyResponse)
 
 proc getTxNotes*(walletRpcClient: WalletRpcClient, params: GetTxNotesRequest): RpcCallResult[GetTxNotesResponse] =
   walletRpcClient.doRpc("get_tx_notes", %*params, GetTxNotesResponse)
 
-proc setAttribute*(walletRpcClient: WalletRpcClient, params: SetAttributeRequest): RpcCallResult[SetAttributeResponse] =
-  walletRpcClient.doRpc("set_attribute", %*params, SetAttributeResponse)
+proc setAttribute*(walletRpcClient: WalletRpcClient, params: SetAttributeRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("set_attribute", %*params, EmptyResponse)
 
 proc getAttribute*(walletRpcClient: WalletRpcClient, params: GetAttributeRequest): RpcCallResult[GetAttributeResponse] =
   walletRpcClient.doRpc("get_attribute", %*params, GetAttributeResponse)
@@ -221,59 +220,59 @@ proc getAddressBook*(walletRpcClient: WalletRpcClient, params: GetAddressBookReq
 proc addAddressBook*(walletRpcClient: WalletRpcClient, params: AddAddressBookRequest): RpcCallResult[AddAddressBookResponse] =
   walletRpcClient.doRpc("add_address_book", %*params, AddAddressBookResponse)
 
-proc editAddressBook*(walletRpcClient: WalletRpcClient, params: EditAddressBookRequest): RpcCallResult[EditAddressBookResponse] =
-  walletRpcClient.doRpc("edit_address_book", %*params, EditAddressBookResponse)
+proc editAddressBook*(walletRpcClient: WalletRpcClient, params: EditAddressBookRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("edit_address_book", %*params, EmptyResponse)
 
-proc deleteAddressBook*(walletRpcClient: WalletRpcClient, params: DeleteAddressBookRequest): RpcCallResult[DeleteAddressBookResponse] =
-  walletRpcClient.doRpc("delete_address_book", %*params, DeleteAddressBookResponse)
+proc deleteAddressBook*(walletRpcClient: WalletRpcClient, params: DeleteAddressBookRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("delete_address_book", %*params, EmptyResponse)
 
 proc refresh*(walletRpcClient: WalletRpcClient, params: RefreshRequest): RpcCallResult[RefreshResponse] =
   walletRpcClient.doRpc("refresh", %*params, RefreshResponse)
 
-proc autoRefresh*(walletRpcClient: WalletRpcClient, params: AutoRefreshRequest): RpcCallResult[AutoRefreshResponse] =
-  walletRpcClient.doRpc("auto_refresh", %*params, AutoRefreshResponse)
+proc autoRefresh*(walletRpcClient: WalletRpcClient, params: AutoRefreshRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("auto_refresh", %*params, EmptyResponse)
 
-proc rescanSpent*(walletRpcClient: WalletRpcClient, params: RescanSpentRequest): RpcCallResult[RescanSpentResponse] =
-  walletRpcClient.doRpc("rescan_spent", %*params, RescanSpentResponse)
+proc rescanSpent*(walletRpcClient: WalletRpcClient): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("rescan_spent", %*{}, EmptyResponse)
 
-proc startMining*(walletRpcClient: WalletRpcClient, params: StartMiningRequest): RpcCallResult[StartMiningResponse] =
-  walletRpcClient.doRpc("start_mining", %*params, StartMiningResponse)
+proc startMining*(walletRpcClient: WalletRpcClient, params: StartMiningRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("start_mining", %*params, EmptyResponse)
 
-proc stopMining*(walletRpcClient: WalletRpcClient, params: StopMiningRequest): RpcCallResult[StopMiningResponse] =
-  walletRpcClient.doRpc("stop_mining", %*params, StopMiningResponse)
+proc stopMining*(walletRpcClient: WalletRpcClient): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("stop_mining", %*{}, EmptyResponse)
 
-proc getLanguages*(walletRpcClient: WalletRpcClient, params: GetLanguagesRequest): RpcCallResult[GetLanguagesResponse] =
-  walletRpcClient.doRpc("get_languages", %*params, GetLanguagesResponse)
+proc getLanguages*(walletRpcClient: WalletRpcClient): RpcCallResult[GetLanguagesResponse] =
+  walletRpcClient.doRpc("get_languages", %*{}, GetLanguagesResponse)
 
-proc createWallet*(walletRpcClient: WalletRpcClient, params: CreateWalletRequest): RpcCallResult[CreateWalletResponse] =
-  walletRpcClient.doRpc("create_wallet", %*params, CreateWalletResponse)
+proc createWallet*(walletRpcClient: WalletRpcClient, params: CreateWalletRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("create_wallet", %*params, EmptyResponse)
 
 proc generateFromKeys*(walletRpcClient: WalletRpcClient, params: GenerateFromKeysRequest): RpcCallResult[GenerateFromKeysResponse] =
   walletRpcClient.doRpc("generate_from_keys", %*params, GenerateFromKeysResponse)
 
-proc openWallet*(walletRpcClient: WalletRpcClient, params: OpenWalletRequest): RpcCallResult[OpenWalletResponse] =
-  walletRpcClient.doRpc("open_wallet", %*params, OpenWalletResponse)
+proc openWallet*(walletRpcClient: WalletRpcClient, params: OpenWalletRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("open_wallet", %*params, EmptyResponse)
 
 proc restoreDeterministicWallet*(walletRpcClient: WalletRpcClient, params: RestoreDeterministicWalletRequest): RpcCallResult[RestoreDeterministicWalletResponse] =
   walletRpcClient.doRpc("restore_deterministic_wallet", %*params, RestoreDeterministicWalletResponse)
 
-proc closeWallet*(walletRpcClient: WalletRpcClient, params: CloseWalletRequest): RpcCallResult[CloseWalletResponse] =
-  walletRpcClient.doRpc("close_wallet", %*params, CloseWalletResponse)
+proc closeWallet*(walletRpcClient: WalletRpcClient): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("close_wallet", %*{}, EmptyResponse)
 
-proc changeWalletPassword*(walletRpcClient: WalletRpcClient, params: ChangeWalletPasswordRequest): RpcCallResult[ChangeWalletPasswordResponse] =
-  walletRpcClient.doRpc("change_wallet_password", %*params, ChangeWalletPasswordResponse)
+proc changeWalletPassword*(walletRpcClient: WalletRpcClient, params: ChangeWalletPasswordRequest): RpcCallResult[EmptyResponse] =
+  walletRpcClient.doRpc("change_wallet_password", %*params, EmptyResponse)
 
-proc isMultisig*(walletRpcClient: WalletRpcClient, params: IsMultisigRequest): RpcCallResult[IsMultisigResponse] =
-  walletRpcClient.doRpc("is_multisig", %*params, IsMultisigResponse)
+proc isMultisig*(walletRpcClient: WalletRpcClient): RpcCallResult[IsMultisigResponse] =
+  walletRpcClient.doRpc("is_multisig", %*{}, IsMultisigResponse)
 
-proc prepareMultisig*(walletRpcClient: WalletRpcClient, params: PrepareMultisigRequest): RpcCallResult[PrepareMultisigResponse] =
-  walletRpcClient.doRpc("prepare_multisig", %*params, PrepareMultisigResponse)
+proc prepareMultisig*(walletRpcClient: WalletRpcClient): RpcCallResult[PrepareMultisigResponse] =
+  walletRpcClient.doRpc("prepare_multisig", %*{}, PrepareMultisigResponse)
 
 proc makeMultisig*(walletRpcClient: WalletRpcClient, params: MakeMultisigRequest): RpcCallResult[MakeMultisigResponse] =
   walletRpcClient.doRpc("make_multisig", %*params, MakeMultisigResponse)
 
-proc exportMultisigInfo*(walletRpcClient: WalletRpcClient, params: ExportMultisigInfoRequest): RpcCallResult[ExportMultisigInfoResponse] =
-  walletRpcClient.doRpc("export_multisig_info", %*params, ExportMultisigInfoResponse)
+proc exportMultisigInfo*(walletRpcClient: WalletRpcClient): RpcCallResult[ExportMultisigInfoResponse] =
+  walletRpcClient.doRpc("export_multisig_info", %*{}, ExportMultisigInfoResponse)
 
 proc importMultisigInfo*(walletRpcClient: WalletRpcClient, params: ImportMultisigInfoRequest): RpcCallResult[ImportMultisigInfoResponse] =
   walletRpcClient.doRpc("import_multisig_info", %*params, ImportMultisigInfoResponse)
@@ -287,6 +286,5 @@ proc signMultisig*(walletRpcClient: WalletRpcClient, params: SignMultisigRequest
 proc submitMultisig*(walletRpcClient: WalletRpcClient, params: SubmitMultisigRequest): RpcCallResult[SubmitMultisigResponse] =
   walletRpcClient.doRpc("submit_multisig", %*params, SubmitMultisigResponse)
 
-proc getVersion*(walletRpcClient: WalletRpcClient, params: GetVersionRequest): RpcCallResult[GetVersionResponse] =
-  walletRpcClient.doRpc("get_version", %*params, GetVersionResponse)
-  """
+proc getVersion*(walletRpcClient: WalletRpcClient): RpcCallResult[GetVersionResponse] =
+  walletRpcClient.doRpc("get_version", %*{}, GetVersionResponse)
