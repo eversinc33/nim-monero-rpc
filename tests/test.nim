@@ -1,10 +1,13 @@
 import unittest
-import monero_wallet_rpc, structs
+import monero_wallet_rpc, options
 
 test "set_daemon":
   let client = newWalletRpcClient()
   let res = client.setDaemon(
-    SetDaemonRequest()
+    SetDaemonRequest(
+      address: some("http://node.supportxmr.com:18081"),
+      trusted: some(false)
+    )
   )
   echo repr(res.data)
   echo $res.rawBody
