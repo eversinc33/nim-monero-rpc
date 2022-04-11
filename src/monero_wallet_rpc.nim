@@ -1,11 +1,10 @@
 import json
 import httpclient
-import monero_wallet_rpc/[structs, enums]
+import monero_wallet_rpc/[structs, enums, utils]
 import options
 import strutils, strformat
 import md5
 import random
-randomize()
 
 export structs
 export enums
@@ -38,7 +37,7 @@ proc getDigestAuthHeader(client: WalletRpcClient, uri: string, requestMethod: Ht
   let qop = authenticateHeader.toString.split("qop=")[1].split('"')[1]
 
   # generate client nonce
-  let cnonce = rand(1..1000000).intToStr
+  let cnonce = randomString()
 
   when false:
     # We dont need to care about the nonce count, as we are doing session-less requests
@@ -48,7 +47,7 @@ proc getDigestAuthHeader(client: WalletRpcClient, uri: string, requestMethod: Ht
     # Thus we can just use a static nonce and avoid having to pass the client as var
     let nonceCount = "00000001"
 
-  # handle unimplemented
+  # handle unimplemented (TODO)
   if qop != "auth":
     raise newException(Exception, "Error in computing digest auth: qop '" & qop & "' not implemented")
   if not authenticateHeader.toString.contains("MD5"):
