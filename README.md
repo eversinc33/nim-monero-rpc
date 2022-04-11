@@ -4,28 +4,30 @@
 <img src="./doc/monero-xmr-logo.png" alt="Monero Logo" width="200" />
 </p>
 
-Experimental client implementation for the Monero wallet RPC server in nim.
+Experimental client implementation for the Monero wallet RPC server in Nim, with support for digest authentication.
 
-DISCLAIMER: This is not tested intensively yet. Test your code in the stagenet before using these bindings.
+DISCLAIMER: Not all methods are tested intensively yet. Test your code in the stagenet before using these bindings.
 
-### Start RPC daemon in stagenet (without digest auth)
+### Start wallet RPC server in stagenet
+
+For testing, create a wallet and start a wallet RPC server in the stagenet. For ease of use, you can `--disable-rpc-login`.
 
 ```bash
-./monero-wallet-rpc --wallet-file /tmp/wallet --daemon-address http://node.supportxmr.com:18081 --stagenet --rpc-bind-port 18082 --password 'password' --disable-rpc-login
+monero-wallet-cli --stagenet --generate-new-wallet  /tmp/testwallet --password secret --mnemonic-language English --offline
+monero-wallet-rpc --rpc-bind-port 18082 --wallet-file /tmp/testwallet --daemon-address http://node.sethforprivacy.com:38089 --untrusted-daemon --password secret --stagenet --disable-rpc-login
 ```
 
 ### Install monero_wallet_rpc
 
 ```bash
+git clone https://github.com/eversinc33/monero-nim && cd monero-nim
 nimble install
 ```
 
 ### Example Code
 
 ```nim
-import monero_wallet_rpc, options
-
-# defaults to host 127.0.0.1 and port 18082
+# connection defaults to host 127.0.0.1 and port 18082, if using digest auth, supply `username="monero", password="password"`
 let client = newWalletRpcClient()
 
 let balanceRequest = client.getBalance(GetBalanceRequest())
@@ -40,12 +42,19 @@ echo "[*] Creating new address"
 let createAddressRequest = client.createAddress(
     CreateAddressRequest(
         accountIndex: 0,
-        label: some("my new address") # optional values need to be wrapped with some()
+        label: some("my new address") # optional parameters need to be wrapped with some()
     )
 )
 
 if createAddressRequest.ok:
     echo "[*] Created new address at " & createAddressRequest.data.address
 else:
-    echo "[!] RPC request failed with status code " & createAddressRequest.statusCode
+    echo "[!] Failed with error code " & $createAddressRequest.error.code
+    echo "[*] " & createAddressRequest.error.message
+```
+
+### Generate Docs
+
+```bash
+nim doc --project --outdir:htmldocs --git.url:https://github.com/eversinc33/monero-nim --git.commit:main ./src/monero_wallet_rpc.nim
 ```

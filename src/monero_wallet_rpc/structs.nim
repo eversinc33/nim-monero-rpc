@@ -2,6 +2,13 @@ import options
 import enums
 
 type
+  HttpError* = object of IOError
+
+  RpcError* = object
+    code*: int
+    message*: string
+
+type
   Index* = object
     major*: uint
     minor*: uint
@@ -111,10 +118,11 @@ type RpcResponse* = object of RootObj
 type EmptyResponse* = object of RpcResponse
 
 type RpcCallResult*[T] = object
-  data*: T
   rawBody*: string
   statusCode*: string
+  data*: T
   ok*: bool
+  error*: RpcError
 
 type
   GetBalanceResponse* = object of RpcResponse
@@ -368,16 +376,6 @@ type
 
   GetVersionResponse* = object of RpcResponse
     version*: uint
-
-  
-
-  
-    
-
-
-  
-        
-  
 
 type 
   SetDaemonRequest* = object
