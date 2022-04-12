@@ -4,7 +4,7 @@
 <img src="./doc/monero-xmr-logo.png" alt="Monero Logo" width="200" />
 </p>
 
-Experimental client implementation for the Monero wallet RPC server in Nim, with support for digest authentication.
+Experimental client implementation for the [Monero](https://www.getmonero.org/) wallet RPC server in Nim, with support for digest authentication.
 
 DISCLAIMER: Not all methods are tested intensively yet. Test your code in the stagenet before using these bindings.
 
