@@ -1,10 +1,9 @@
 import json
 import httpclient
-import monero_wallet_rpc/[structs, enums, utils]
+import monerorpc/[structs, enums, utils]
 import options
 import strutils, strformat
 import md5
-import random
 
 export structs
 export enums

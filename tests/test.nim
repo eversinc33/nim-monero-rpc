@@ -1,5 +1,5 @@
 import unittest
-import monero_wallet_rpc, options
+import monerorpc, options
 
 suite "test calls":
   echo "Running tests for monero-nim"
@@ -64,6 +64,4 @@ suite "test calls":
         echo "[!] Failed with error code " & $createAddressRequest.error.code
         echo "[*] " & createAddressRequest.error.message 
     
-
-    
-
+  # TODO: more tests
