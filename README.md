@@ -27,6 +27,8 @@ nimble install
 ### Example Code
 
 ```nim
+import monerorpc
+
 # connection defaults to host 127.0.0.1 and port 18082, if using digest auth, supply `username="monero", password="password"`
 let client = newWalletRpcClient()
 
