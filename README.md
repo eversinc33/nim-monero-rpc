@@ -20,8 +20,7 @@ monero-wallet-rpc --rpc-bind-port 18082 --wallet-file /tmp/testwallet --daemon-a
 ### Install monero_wallet_rpc
 
 ```bash
-git clone https://github.com/eversinc33/monero-nim && cd monero-nim
-nimble install
+nimble install monerorpc
 ```
 
 ### Example Code
