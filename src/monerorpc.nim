@@ -9,7 +9,7 @@ export structs
 export enums
 
 type
-  WalletRpcClient = object
+  WalletRpcClient* = object
     host: string
     port: range[1..65535]
     connectionString: string
