@@ -284,11 +284,11 @@ type
     total*: Option[uint]
 
   GetTransfersResponse* = object of RpcResponse
-    `in`: seq[TransferInformation]
-    `out`: seq[TransferInformation]
-    pending: seq[TransferInformation]
-    failed: seq[TransferInformation]
-    pool: seq[TransferInformation]
+    `in`*: Option[seq[TransferInformation]]
+    `out`*: Option[seq[TransferInformation]]
+    pending*: Option[seq[TransferInformation]]
+    failed*: Option[seq[TransferInformation]]
+    pool*: Option[seq[TransferInformation]]
 
   GetTransferByTxidResponse* = object of RpcResponse
     transfer*: TransferInformation
@@ -583,14 +583,14 @@ type
   GetTransfersRequest* = object
     `in`*: bool
     `out`*: bool
-    pending: bool
-    failed: bool
-    pool: bool
-    filter_by_height: Option[bool]
-    min_height: Option[uint]
-    max_height: Option[uint]
-    account_index: Option[uint]
-    subaddr_indices: Option[seq[uint]]
+    pending*: bool
+    failed*: bool
+    pool*: bool
+    filter_by_height*: Option[bool]
+    min_height*: Option[uint]
+    max_height*: Option[uint]
+    account_index*: Option[uint]
+    subaddr_indices*: Option[seq[uint]]
 
   GetTransferByTxidRequest* = object
     txid*: string
