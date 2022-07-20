@@ -710,3 +710,6 @@ type
 
   SubmitMultisigRequest* = object
     tx_data_hex*: string
+
+  ScanTxRequest* = object
+    txids*: seq[string]

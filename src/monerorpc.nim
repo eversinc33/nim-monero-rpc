@@ -450,3 +450,7 @@ proc submitMultisig*(client: WalletRpcClient, params: SubmitMultisigRequest): Rp
 proc getVersion*(client: WalletRpcClient): RpcCallResult[GetVersionResponse] =
   ## Get RPC version Major & Minor integer-format, where Major is the first 16 bits and Minor the last 16 bits.
   client.doRpc("get_version", %*{}, GetVersionResponse)
+
+proc scanTx*(client: WalletRpcClient, params: ScanTxRequest): RpcCallResult[EmptyResponse] =
+  ## Scan for list of transaction ids. Introduced in v0.18.0.0 Fluorine Fermi
+  client.doRpc("scan_tx", %*params, EmptyResponse)
