@@ -64,4 +64,25 @@ suite "test calls":
         echo "[!] Failed with error code " & $createAddressRequest.error.code
         echo "[*] " & createAddressRequest.error.message 
     
+  test "call get_transfers with digest auth":
+    let client = newWalletRpcClient(password="password", username="monero")
+    let getTransfersRequest = client.getTransfers(GetTransfersRequest(
+        `in`: true,
+        `out`: false,
+        pending: false,
+        failed: false,
+        pool: false
+    ))
+    check getTransfersRequest.ok
+
+  test "CalleEstimate_tx_size_and_weight with digest auth":
+    let client = newWalletRpcClient(password="password", username="monero")
+    let estimateTxSizeAndWeightRequest = client.estimateTxSizeAndWeight(EstimateTxSizeAndWeightRequest(
+      n_inputs: 1,
+      n_outputs: 2,
+      ring_size: 16,
+      rct: true
+    ))
+    check estimateTxSizeAndWeightRequest.ok
+
   # TODO: more tests
