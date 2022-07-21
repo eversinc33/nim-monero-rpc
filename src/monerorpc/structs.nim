@@ -374,8 +374,19 @@ type
   SubmitMultisigResponse* = object of RpcResponse
     tx_hash_list*: seq[string]
 
+  ExchangeMultisigKeysResponse* = object of RpcResponse
+    address*: string
+    multisig_info*: string
+
   GetVersionResponse* = object of RpcResponse
     version*: uint
+
+  FrozenResponse* = object of RpcResponse
+    frozen*: bool
+
+  EstimateTxSizeAndWeightResponse* = object of RpcResponse
+    size*: int
+    weight*: int
 
 type 
   SetDaemonRequest* = object
@@ -711,5 +722,24 @@ type
   SubmitMultisigRequest* = object
     tx_data_hex*: string
 
+  ExchangeMultisigKeysRequest* = object
+    password*: string
+    multisig_info*: string
+
   ScanTxRequest* = object
     txids*: seq[string]
+
+  FreezeRequest* = object
+    key_image*: string
+
+  FrozenRequest* = object
+    key_image*: string
+
+  ThawRequest* = object
+    key_image*: string
+
+  EstimateTxSizeAndWeightRequest* = object
+    n_inputs*: int
+    n_outputs*: int
+    ring_size*: int
+    rct*: bool

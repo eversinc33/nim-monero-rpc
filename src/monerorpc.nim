@@ -447,6 +447,10 @@ proc submitMultisig*(client: WalletRpcClient, params: SubmitMultisigRequest): Rp
   ## Submit a signed multisig transaction.
   client.doRpc("submit_multisig", %*params, SubmitMultisigResponse)
 
+proc exchangeMultisigKeys*(client: WalletRpcClient, params: ExchangeMultisigKeysRequest): RpcCallResult[ExchangeMultisigKeysResponse] =
+  ## Performs extra multisig keys exchange rounds. Needed for arbitrary M/N multisig wallets
+  client.doRpc("exchange_multisig_keys", %*params, ExchangeMultisigKeysResponse)
+
 proc getVersion*(client: WalletRpcClient): RpcCallResult[GetVersionResponse] =
   ## Get RPC version Major & Minor integer-format, where Major is the first 16 bits and Minor the last 16 bits.
   client.doRpc("get_version", %*{}, GetVersionResponse)
@@ -454,3 +458,19 @@ proc getVersion*(client: WalletRpcClient): RpcCallResult[GetVersionResponse] =
 proc scanTx*(client: WalletRpcClient, params: ScanTxRequest): RpcCallResult[EmptyResponse] =
   ## Scan for list of transaction ids. Introduced in v0.18.0.0 Fluorine Fermi
   client.doRpc("scan_tx", %*params, EmptyResponse)
+
+proc freeze*(client: WalletRpcClient, params: FreezeRequest): RpcCallResult[EmptyResponse] =
+  ## Freeze a single output by key image so it will not be used
+  client.doRpc("freeze", %*params, EmptyResponse)
+
+proc frozen*(client: WalletRpcClient, params: FrozenRequest): RpcCallResult[FrozenResponse] =
+  ## Checks whether a given output is currently frozen by key image
+  client.doRpc("frozen", %*params, FrozenResponse)
+
+proc thaw*(client: WalletRpcClient, params: ThawRequest): RpcCallResult[EmptyResponse] =
+  ## Thaw a single output by key image so it may be used again
+  client.doRpc("thaw", %*params, EmptyResponse)
+
+proc estimateTxSizeAndWeight*(client: WalletRpcClient, params: EstimateTxSizeAndWeightRequest): RpcCallResult[EstimateTxSizeAndWeightResponse] =
+  ## Estimate size and weight of a transaction
+  client.doRpc("estimate_tx_size_and_weight", %*params, EstimateTxSizeAndWeightResponse)
