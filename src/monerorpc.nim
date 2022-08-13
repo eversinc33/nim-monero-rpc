@@ -65,37 +65,27 @@ proc getDigestAuthHeader(client: MoneroRpcClient, uri: string, requestMethod: Ht
   let response = getMD5(HA1 & ":" & nonce & ":" & nonceCount & ":" & cnonce & ":" & qop & ":" & HA2)
   result = "Digest username=\"" & client.username & "\",realm=\"" & realm & "\",nonce=\"" & nonce & "\",uri=\"" & uri & "\",qop=" & qop & ",nc=" & nonceCount & ",cnonce=\"" & cnonce & "\",response=\"" & response & "\""
 
-proc newWalletRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = DEFAULT_WALLET_RPC_PORT, username: string = "", password: string = ""): WalletRpcClient =
-  ## Create a new RPC client for the Monero wallet
-  let digestAuthEnabled = bool(username != "" and password != "")
+template clientInstantiatorTemplate(functionName: untyped, clientType: typedesc, defaultPort: range[1..65535]) =
+  ## Create a new function to instantiate a RPC client 
+  proc functionName*(host: string = "127.0.0.1", port: range[1..65535] = defaultPort, username: string = "", password: string = ""): clientType =
+    ## Create a new RPC client.
+    let digestAuthEnabled = bool(username != "" and password != "")
 
-  result = WalletRpcClient(
-    host: host, 
-    port: port, 
-    connectionString: "http://" & host & ":" & $port,
-    httpClient: newHttpClient(),
-    digestAuthEnabled: digestAuthEnabled,
-    username: username,
-    password: password,
-    nonceCount: 0
-  )
+    result = clientType(
+      host: host, 
+      port: port, 
+      connectionString: "http://" & host & ":" & $port,
+      httpClient: newHttpClient(),
+      digestAuthEnabled: digestAuthEnabled,
+      username: username,
+      password: password,
+      nonceCount: 0
+    )
 
-proc newDaemonRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = DEFAULT_DAEMON_RPC_PORT, username: string = "", password: string = ""): DaemonRpcClient =
-  ## Create a new RPC client for the Monero daemon
-  let digestAuthEnabled = bool(username != "" and password != "")
+clientInstantiatorTemplate(newDaemonRpcClient, DaemonRpcClient, DEFAULT_DAEMON_RPC_PORT)
+clientInstantiatorTemplate(newWalletRpcClient, WalletRpcClient, DEFAULT_WALLET_RPC_PORT)
 
-  result = DaemonRpcClient(
-    host: host, 
-    port: port, 
-    connectionString: "http://" & host & ":" & $port,
-    httpClient: newHttpClient(),
-    digestAuthEnabled: digestAuthEnabled,
-    username: username,
-    password: password,
-    nonceCount: 0
-  )
-
-template doJsonRpc(client: MoneroRpcClient, call: string, arguments: JsonNode, resultType: typedesc) =
+template setHeaders(client: MoneroRpcClient) =
   if client.digestAuthEnabled:
     client.httpClient.headers = newHttpHeaders({ 
       "Content-Type": "application/json",
@@ -105,6 +95,10 @@ template doJsonRpc(client: MoneroRpcClient, call: string, arguments: JsonNode, r
     client.httpClient.headers = newHttpHeaders({ 
       "Content-Type": "application/json",
     })
+
+template doJsonRpc(client: MoneroRpcClient, call: string, arguments: JsonNode, resultType: typedesc) =
+  client.setHeaders()
+
   let body = %*{
     "json_rpc": "2.0",
     "method": call,
@@ -141,14 +135,7 @@ template doJsonRpc(client: MoneroRpcClient, call: string, arguments: JsonNode, r
     )
 
 template doHttpGetRpc(client: DaemonRpcClient, path: string, resultType: typedesc) =
-  if client.digestAuthEnabled:
-    client.httpClient.headers = newHttpHeaders({ 
-      "Authorization": client.getDigestAuthHeader(path) 
-    })
-  else:
-    client.httpClient.headers = newHttpHeaders({ 
-      "Content-Type": "application/json",
-    })
+  client.setHeaders()
 
   when not path.startsWith("/"):
     {.error: "Path " & path & " has to start with a slash ('/')"}
@@ -172,16 +159,7 @@ template doHttpGetRpc(client: DaemonRpcClient, path: string, resultType: typedes
   )
 
 template doHttpPostRpc(client: DaemonRpcClient, path: string, jsonBody: JsonNode, resultType: typedesc) =
-  # setup request
-  if client.digestAuthEnabled:
-    client.httpClient.headers = newHttpHeaders({ 
-      "Content-Type": "application/json",
-      "Authorization": client.getDigestAuthHeader(path) 
-    })
-  else:
-    client.httpClient.headers = newHttpHeaders({ 
-      "Content-Type": "application/json",
-    })
+  client.setHeaders()
 
   when not path.startsWith("/"):
     {.error: "Path " & path & " has to start with a slash ('/')"}

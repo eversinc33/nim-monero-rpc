@@ -212,7 +212,7 @@ type
     recv_count*: uint
     recv_idle_time*: uint
     rpc_credits_by_hash*: uint
-    rpc_port*: range[1..65535]
+    rpc_port*: uint
     send_count*: uint
     send_idle_time*: uint
     state*: string
@@ -269,7 +269,7 @@ type
     id*: string
     ip*: string
     last_seen*: uint
-    port*: range[1..65535]
+    port*: uint
 
   SpentOutputKeyImage* = object
     id_hash*: string

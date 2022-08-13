@@ -1,6 +1,35 @@
 import unittest
 import monerorpc, options
 
+suite "monero daemon rpc":
+  echo "Running tests for daemon"
+  echo "Make sure you are running a monero-daemon-rpc server on 127.0.0.1:18081 with --rpc-login monero:password (see README)."
+  echo "====================================================="
+
+  test "Call get_version":
+    let client = newDaemonRpcClient()
+    let r = client.getVersion()
+    check r.ok
+
+  test "Call /get_height":
+    let client = newDaemonRpcClient()
+    let r = client.getHeight()
+    check r.data.status == "OK"
+    check r.ok
+
+  test "Call /start_mining":
+    let client = newDaemonRpcClient()
+    let r = client.startMining(
+      StartMiningRequest_Daemon(
+        do_background_mining: false,
+        ignore_battery: false,
+        miner_address: "TEST",
+        threads_count: 1
+      )
+    )
+    check r.ok
+    check r.data.status == "Failed, wrong address"
+
 suite "monero wallet rpc":
   echo "Running tests for wallet"
   echo "Make sure you are running a monero-wallet-rpc server on 127.0.0.1:18082 with --rpc-login monero:password (see README)."
@@ -84,34 +113,5 @@ suite "monero wallet rpc":
       rct: true
     ))
     check estimateTxSizeAndWeightRequest.ok
-
-suite "monero daemon rpc":
-  echo "Running tests for daemon"
-  echo "Make sure you are running a monero-daemon-rpc server on 127.0.0.1:18081 with --rpc-login monero:password (see README)."
-  echo "====================================================="
-
-  test "Call get_version":
-    let client = newDaemonRpcClient()
-    let r = client.getVersion()
-    check r.ok
-
-  test "Call /get_height":
-    let client = newDaemonRpcClient()
-    let r = client.getHeight()
-    check r.data.status == "OK"
-    check r.ok
-
-  test "Call /start_mining":
-    let client = newDaemonRpcClient()
-    let r = client.startMining(
-      StartMiningRequest_Daemon(
-        do_background_mining: false,
-        ignore_battery: false,
-        miner_address: "TEST",
-        threads_count: 1
-      )
-    )
-    check r.ok
-    check r.data.status == "Failed, wrong address"
 
 # TODO: more tests
