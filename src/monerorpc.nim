@@ -26,7 +26,7 @@ type
   WalletRpcClient* = object of MoneroRpcClient
   DaemonRpcClient* = object of MoneroRpcClient
 
-proc getDigestAuthHeader(client: WalletRpcClient, uri: string, requestMethod: HttpMethod = HttpPost): string =
+proc getDigestAuthHeader(client: MoneroRpcClient, uri: string, requestMethod: HttpMethod = HttpPost): string =
   ## Calculate digest auth header for a request
 
   # grab header
@@ -80,7 +80,7 @@ proc newWalletRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = DEF
     nonceCount: 0
   )
 
-proc newDaemonRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = DEFAULT_DAEMON_RPC_PORT, username: string = "", password: string = ""): WalletRpcClient =
+proc newDaemonRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = DEFAULT_DAEMON_RPC_PORT, username: string = "", password: string = ""): DaemonRpcClient =
   ## Create a new RPC client for the Monero daemon
   let digestAuthEnabled = bool(username != "" and password != "")
 
@@ -119,7 +119,7 @@ template doRpc(client: MoneroRpcClient, call: string, arguments: JsonNode, resul
   if response.status != "200 Ok":
     raise newException(HttpError, "RPC call returned non-200 HTTP code " & response.status)
 
-  # check if call was ok, but error was thrown from monero-wallet-rpc 
+  # check if call was ok, but error was thrown from our code
   if parseJson(response.body).hasKey("error"):
     result = RpcCallResult[resultType](
       rawBody: response.body,
@@ -506,7 +506,7 @@ proc getBlockCount*(client: DaemonRpcClient): RpcCallResult[GetBlockCountRespons
 
 proc onGetBlockHash*(client: DaemonRpcClient, params: OnGetBlockHashRequest): RpcCallResult[OnGetBlockHashResponse] =
   ## Look up a block's hash by its height.
-  client.doRpc("on_get_block_hash", %*params, EstimateTxSizeAndWeightResponse)
+  client.doRpc("on_get_block_hash", %*params, OnGetBlockHashResponse)
   
 proc getBlockTemplate*(client: DaemonRpcClient, params: GetBlockTemplateRequest): RpcCallResult[GetBlockTemplateResponse] =
   ## Get a block template on which mining a new block. 
@@ -514,7 +514,7 @@ proc getBlockTemplate*(client: DaemonRpcClient, params: GetBlockTemplateRequest)
 
 proc submitBlock*(client: DaemonRpcClient, params: SubmitBlockRequest): RpcCallResult[SubmitBlockResponse] =
   ## Submit a mined block to the network.
-  client.doRpc("submit_block", %*params, SubmitBlockRequest)
+  client.doRpc("submit_block", %*params, SubmitBlockResponse)
 
 proc getLastBlockHeader*(client: DaemonRpcClient): RpcCallResult[GetLastBlockHeaderResponse] =
   ## Block header information for the most recent block is easily retrieved with this method. No inputs are needed.
@@ -546,7 +546,7 @@ proc getInfo*(client: DaemonRpcClient): RpcCallResult[GetInfoResponse] =
 
 proc hardForkInfo*(client: DaemonRpcClient): RpcCallResult[HardForkInfoResponse] = 
   ## Look up information regarding hard fork voting and readiness.
-  client.doRpc("hard_fork_info", %*{}, GetInfoResponse)
+  client.doRpc("hard_fork_info", %*{}, HardForkInfoResponse)
 
 proc setBans*(client: DaemonRpcClient, params: SetBansRequest): RpcCallResult[SetBansResponse] =
   ## Ban another node by IP or host.
