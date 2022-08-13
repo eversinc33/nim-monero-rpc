@@ -8,6 +8,18 @@ type
     code*: int
     message*: string
 
+  RpcResponse* = object of RootObj
+
+  EmptyResponse* = object of RpcResponse
+
+  RpcCallResult*[T] = object
+    rawBody*: string
+    statusCode*: string
+    data*: T
+    ok*: bool
+    error*: RpcError
+
+# Wallet types
 type
   Index* = object
     major*: uint
@@ -113,17 +125,133 @@ type
     recipient_name*: string
     tx_description*: string
 
-type RpcResponse* = object of RootObj
+# Daemon types
+type
+  Node* = object
+    host*: string
+    ip*: string
+    seconds*: uint
 
-type EmptyResponse* = object of RpcResponse
+  NodeBan* = object
+    host*: Option[string]
+    ip*: Option[uint]
+    ban*: bool
+    seconds*: uint
 
-type RpcCallResult*[T] = object
-  rawBody*: string
-  statusCode*: string
-  data*: T
-  ok*: bool
-  error*: RpcError
+  BlockHeader* = object
+    block_size*: uint
+    block_weight*: uint
+    cumulative_difficulty*: uint64
+    cumulative_difficulty_top64*: uint64
+    depth*: uint
+    difficulty*: uint
+    hash*: string
+    height*: uint
+    long_term_weight*: uint
+    major_version*: uint
+    miner_tx_hash*: string
+    minor_version*: uint
+    nonce*: uint
+    num_txes*: uint
+    orphan_status*: bool
+    pow_hash*: string
+    prev_hash*: string
+    reward*: uint
+    timestamp*: uint
+    wide_cumulative_difficulty*: string
+    wide_difficulty*: string
 
+  Gen* = object
+    height*: uint
+
+  TransactionInput* = object
+    gen*: Gen
+
+  Target* = object
+    key*: string
+
+  TransactionOutput* = object
+    amount*: uint
+    target*: Target
+
+  MinerTransaction* = object
+    version*: uint
+    unlock_time*: uint
+    vin*: seq[TransactionInput]
+    vout*: seq[TransactionOutput]
+    extra*: string
+    signatures*: seq[string]
+    tx_hashes*: seq[string]
+
+  BlockDetails* = object
+    major_version*: uint
+    minor_version*: uint
+    timestamp*: uint
+    prev_id*: string
+    nonce*: uint
+    miner_tx*: MinerTransaction
+
+  Connection* = object
+    address*: string
+    address_type*: int
+    avg_download*: uint
+    avg_upload*: uint
+    connection_id*: string
+    current_download*: uint
+    current_upload*: uint
+    height*: uint
+    host*: string
+    incoming*: bool
+    ip*: string
+    live_time*: uint
+    local_ip*: bool
+    localhost*: bool
+    peer_id*: string
+    port*: string
+    pruning_seed*: uint
+    recv_count*: uint
+    recv_idle_time*: uint
+    rpc_credits_by_hash*: uint
+    rpc_port*: range[1..65535]
+    send_count*: uint
+    send_idle_time*: uint
+    state*: string
+    support_flags*: uint
+
+  Histogram* = object 
+    amount*: uint
+    total_instances*: uint
+    unlocked_instances*: uint
+    recent_instances*: uint
+
+  Chain* = object
+    block_hash*: string
+    block_hashes*: seq[string]
+    difficulty*, difficulty_top64*: uint64
+    height*: uint
+    length*: uint
+    main_chain_parent_block*: string
+    wide_difficulty*: string
+
+  Peer* = object
+    info*: Connection
+
+  Span* = object
+    connection_id*: string
+    nblocks*: uint
+    rate*: uint
+    remote_address*: string
+    size*: uint
+    speed*: uint
+    start_block_height*: uint
+  
+  Distribution* = object
+    amount*: uint
+    base*: uint
+    distribution*: seq[uint]
+    start_height*: uint
+
+# Wallet RPC
 type
   GetBalanceResponse* = object of RpcResponse
     balance*: uint
@@ -743,3 +871,252 @@ type
     n_outputs*: int
     ring_size*: int
     rct*: bool
+
+# Daemon RPC
+type
+  GetBlockCountResponse* = object of RpcResponse
+    count*: uint
+    status*: string
+    untrusted*: bool
+
+  OnGetBlockHashResponse* = object of RpcResponse
+    block_hash*: string
+
+  GetBlockTemplateResponse* = object of RpcResponse
+    blocktemplate_blob*: string
+    blockhashing_blob*: string
+    difficulty*: uint64
+    difficulty_top64*: uint64
+    expected_reward*: uint
+    height*: uint
+    next_seed_hash*: string
+    prev_hash*: string
+    reserved_offset*: uint
+    seed_hash*: string
+    seed_height*: string
+    status*: string
+    untrusted*: bool
+    wide_difficulty*: string
+
+  SubmitBlockResponse* = object of RpcResponse
+    status*: string
+
+  GetLastBlockHeaderResponse* = object of RpcResponse
+    block_header*: BlockHeader
+    credits*: uint
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  GetBlockHeaderByHashResponse* = object of RpcResponse
+    block_header*: BlockHeader
+    status*: string
+    untrusted*: bool
+
+  GetBlockHeaderByHeightResponse* = GetBlockHeaderByHashResponse
+
+  GetBlockHeadersRangeResponse* = object of RpcResponse
+    credits*: uint
+    headers*: seq[BlockHeader]
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  GetBlockResponse* = object of RpcResponse
+    blob*: string
+    block_header*: BlockHeader
+    credits*: uint
+    json*: BlockDetails
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  GetConnectionsResponse* = object of RpcResponse
+    connections*: seq[Connection]
+    status*: string
+    untrusted*: bool
+
+  GetInfoResponse* = object of RpcResponse
+    adjusted_time*: uint
+    alt_blocks_count*: uint
+    block_weight_limit*: uint
+    block_weight_median*: uint
+    bootstrap_daemon_address*: string
+    busy_syncing*: bool
+    credits*: uint
+    cumulative_difficulty*: uint64
+    cumulative_difficulty_top64*: uint64
+    database_size*: uint
+    difficulty*: uint64
+    difficulty_top64*: uint64
+    free_space*: uint
+    grey_peerlist_size*: uint
+    height*: uint
+    height_without_bootstrap*: uint
+    incoming_connections_count*: uint
+    mainnet*: bool
+    nettype*: NetType
+    offline*: bool
+    outgoing_connections_count*: uint
+    rpc_connections_count*: uint
+    stagenet*: bool
+    start_time*: uint
+    status*: string
+    synchronized*: bool
+    target*: uint
+    target_height*: uint
+    testnet*: bool
+    top_block_hash*: string
+    top_hash*: string
+    tx_count*: uint
+    tx_pool_size*: uint
+    untrusted*: bool
+    update_available*: bool
+    version*: string
+    was_bootstrap_ever_used*: bool
+    white_peerlist_size*: uint
+    wide_cumulative_difficulty*: string
+    wide_difficulty*: string
+
+  HardForkInfoResponse* = object of RpcResponse
+    credits*: uint
+    earliest_height*: uint
+    enabled*: bool
+    state*: uint
+    status*: string
+    threshold*: uint
+    top_hash*: string
+    untrusted*: bool
+    version*: uint
+    votes*: uint
+    voting*: uint
+    window*: uint
+
+  SetBansResponse* = object of RpcResponse
+    status*: string
+    untrusted*: bool
+
+  GetBansResponse* = object of RpcResponse
+    bans*: seq[Node]
+    status*: string
+    untrusted*: bool
+
+  FlushTxPoolResponse* = object of RpcResponse
+    status*: string
+  
+  GetOutputHistogramResponse* = object of RpcResponse
+    credits*: uint
+    histogram*: seq[Histogram]
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  GetCoinbaseTxSumResponse* = object of RpcResponse
+    credits*: uint
+    emission_amount*: uint64
+    emission_amount_top64*: uint64
+    fee_amount*: uint64
+    fee_amount_top64*: uint64
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+    wide_emission_amount*: string
+    wide_fee_amount*: string
+
+  # wallet has a response with the same name ..
+  GetVersionResponse_Daemon* = object of RpcResponse
+    release*: bool
+    status*: string
+    untrusted*: bool
+    version*: uint
+    
+  GetFeeEstimateResponse* = object of RpcResponse
+    credits*: uint
+    fee*: uint
+    quantization_mask*: uint
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  GetAlternateChainsResponse* = object of RpcResponse
+    chains*: seq[Chain]
+    status*: string
+    untrusted*: bool
+
+  # wallet has a response with the same name ..
+  RelayTxResponse_Daemon* = object of RpcResponse
+    status*: string
+
+  SyncInfoResponse* = object of RpcResponse
+    credits*: uint
+    height*: uint
+    next_needed_pruning_seed*: uint
+    overview*: string
+    peers*: seq[Peer]
+    spans*: Option[seq[Span]]
+    status*: string
+    target_height*: uint
+
+  GetTxpoolBacklogResponse* = object of RpcResponse
+    backlog*: string # Binary. TODO
+    status*: string
+    untrusted*: bool
+
+  GetOutputDistributionResponse* = object of RpcResponse
+    distributions*: seq[Distribution]
+    status*: string
+
+type 
+  OnGetBlockHashRequest* = object
+    block_height*: array[1, int]
+
+  GetBlockTemplateRequest* = object
+    wallet_address*: string
+    reserve_size*: uint
+
+  SubmitBlockRequest* = object
+    block_blob_data*: seq[string]
+
+  GetBlockHeaderByHashRequest* = object
+    hash*: string
+
+  GetBlockHeaderByHeightRequest* = object
+    height*: uint
+
+  GetBlockHeadersRangeRequest* = object
+    start_height*: uint
+    end_height*: uint
+
+  GetBlockRequest* = object
+    height*: Option[uint]
+    hash*: Option[string]
+
+  SetBansRequest* = object
+    bans*: seq[NodeBan]
+
+  FlushTxPoolRequest* = object
+    txids*: Option[seq[string]]
+
+  GetOutputHistogramRequest* = object
+    amounts*: seq[uint]
+    min_count*: Option[uint]
+    max_count*: Option[uint]
+    unlocked*: Option[bool]
+    recent_cutoff*: Option[uint]
+
+  GetCoinbaseTxSumRequest* = object
+    height*: uint
+    count*: uint
+
+  GetFeeEstimateRequest* = object
+    grace_blocks*: Option[uint]
+
+  # wallet has a request with the same name ..
+  RelayTxRequest_Daemon* = object
+    txids*: seq[string]
+
+  GetOutputDistributionRequest* = object
+    amounts*: seq[uint]
+    cumulative*: Option[bool]
+    from_height*: Option[uint]
+    to_height*: Option[uint]

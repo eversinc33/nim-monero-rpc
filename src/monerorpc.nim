@@ -8,16 +8,23 @@ import md5
 export structs
 export enums
 
+let 
+  DEFAULT_DAEMON_RPC_PORT = 18081
+  DEFAULT_WALLET_RPC_PORT = 18082
+
 type
-  WalletRpcClient* = object
-    host: string
-    port: range[1..65535]
-    connectionString: string
-    httpClient: HttpClient
+  MoneroRpcClient = object of RootObj
+    host*: string
+    port*: range[1..65535]
+    connectionString*: string
+    httpClient*: HttpClient
     # authentication:
-    digestAuthEnabled: bool
-    username, password: string
+    digestAuthEnabled*: bool
+    username*, password*: string
     nonceCount*: uint
+
+  WalletRpcClient* = object of MoneroRpcClient
+  DaemonRpcClient* = object of MoneroRpcClient
 
 proc getDigestAuthHeader(client: WalletRpcClient, uri: string, requestMethod: HttpMethod = HttpPost): string =
   ## Calculate digest auth header for a request
@@ -58,9 +65,9 @@ proc getDigestAuthHeader(client: WalletRpcClient, uri: string, requestMethod: Ht
   let response = getMD5(HA1 & ":" & nonce & ":" & nonceCount & ":" & cnonce & ":" & qop & ":" & HA2)
   result = "Digest username=\"" & client.username & "\",realm=\"" & realm & "\",nonce=\"" & nonce & "\",uri=\"" & uri & "\",qop=" & qop & ",nc=" & nonceCount & ",cnonce=\"" & cnonce & "\",response=\"" & response & "\""
 
-proc newWalletRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = 18082, username: string = "", password: string = ""): WalletRpcClient =
+proc newWalletRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = DEFAULT_WALLET_RPC_PORT, username: string = "", password: string = ""): WalletRpcClient =
   ## Create a new RPC client for the Monero wallet
-  let digestAuthEnabled = bool(username != "" or password != "")
+  let digestAuthEnabled = bool(username != "" and password != "")
 
   result = WalletRpcClient(
     host: host, 
@@ -73,7 +80,22 @@ proc newWalletRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = 180
     nonceCount: 0
   )
 
-template doRpc(client: WalletRpcClient, call: string, arguments: JsonNode, resultType: typedesc) =
+proc newDaemonRpcClient*(host: string = "127.0.0.1", port: range[1..65535] = DEFAULT_DAEMON_RPC_PORT, username: string = "", password: string = ""): WalletRpcClient =
+  ## Create a new RPC client for the Monero daemon
+  let digestAuthEnabled = bool(username != "" and password != "")
+
+  result = DaemonRpcClient(
+    host: host, 
+    port: port, 
+    connectionString: "http://" & host & ":" & $port & "/json_rpc",
+    httpClient: newHttpClient(),
+    digestAuthEnabled: digestAuthEnabled,
+    username: username,
+    password: password,
+    nonceCount: 0
+  )
+
+template doRpc(client: MoneroRpcClient, call: string, arguments: JsonNode, resultType: typedesc) =
   # setup request
   if client.digestAuthEnabled:
     client.httpClient.headers = newHttpHeaders({ 
@@ -474,3 +496,102 @@ proc thaw*(client: WalletRpcClient, params: ThawRequest): RpcCallResult[EmptyRes
 proc estimateTxSizeAndWeight*(client: WalletRpcClient, params: EstimateTxSizeAndWeightRequest): RpcCallResult[EstimateTxSizeAndWeightResponse] =
   ## Estimate size and weight of a transaction
   client.doRpc("estimate_tx_size_and_weight", %*params, EstimateTxSizeAndWeightResponse)
+
+# ===== Monero Daemon RPC calls ======
+# see https://www.getmonero.org/resources/developer-guides/daemon-rpc.html
+
+proc getBlockCount*(client: DaemonRpcClient): RpcCallResult[GetBlockCountResponse] =
+  ## Look up how many blocks are in the longest chain known to the node.
+  client.doRpc("get_block_count", %*{}, GetBlockCountResponse)
+
+proc onGetBlockHash*(client: DaemonRpcClient, params: OnGetBlockHashRequest): RpcCallResult[OnGetBlockHashResponse] =
+  ## Look up a block's hash by its height.
+  client.doRpc("on_get_block_hash", %*params, EstimateTxSizeAndWeightResponse)
+  
+proc getBlockTemplate*(client: DaemonRpcClient, params: GetBlockTemplateRequest): RpcCallResult[GetBlockTemplateResponse] =
+  ## Get a block template on which mining a new block. 
+  client.doRpc("get_block_template", %*params, GetBlockTemplateResponse)
+
+proc submitBlock*(client: DaemonRpcClient, params: SubmitBlockRequest): RpcCallResult[SubmitBlockResponse] =
+  ## Submit a mined block to the network.
+  client.doRpc("submit_block", %*params, SubmitBlockRequest)
+
+proc getLastBlockHeader*(client: DaemonRpcClient): RpcCallResult[GetLastBlockHeaderResponse] =
+  ## Block header information for the most recent block is easily retrieved with this method. No inputs are needed.
+  client.doRpc("get_last_block_header", %*{}, GetLastBlockHeaderResponse)
+
+proc getBlockHeaderByHash*(client: DaemonRpcClient, params: GetBlockHeaderByHashRequest): RpcCallResult[GetBlockHeaderByHashResponse] =
+  ## Block header information can be retrieved using either a block's hash or height. This method includes a block's hash as an input parameter to retrieve basic information about the block.
+  client.doRpc("get_block_header_by_hash", %*params, GetBlockHeaderByHashResponse)
+
+proc getBlockHeaderByHeight*(client: DaemonRpcClient, params: GetBlockHeaderByHeightRequest): RpcCallResult[GetBlockHeaderByHeightResponse] =
+  ## Block header information can be retrieved using either a block's hash or height. This method includes a block's height as an input parameter to retrieve basic information about the block.
+  client.doRpc("get_block_header_by_height", %*params, GetBlockHeaderByHeightResponse)
+
+proc getBlockHeadersRange*(client: DaemonRpcClient, params: GetBlockHeadersRangeRequest): RpcCallResult[GetBlockHeadersRangeResponse] =
+  ## Similar to get_block_header_by_height, but for a range of blocks. This method includes a starting block height and an ending block height as parameters to retrieve basic information about the range of blocks.
+  client.doRpc("get_block_headers_range", %*params, GetBlockHeadersRangeResponse)
+
+proc getBlock*(client: DaemonRpcClient, params: GetBlockRequest): RpcCallResult[GetBlockResponse] = 
+  ## Full block information can be retrieved by either block height or hash, like with the above block header calls. For full block information, both lookups use the same method, but with different input parameters.
+  client.doRpc("get_block", %*params, GetBlockResponse)
+
+proc getConnections*(client: DaemonRpcClient): RpcCallResult[GetConnectionsResponse] =
+  ## Retrieve information about incoming and outgoing connections to your node.
+  client.doRpc("get_connections", %*{}, GetConnectionsResponse)
+
+proc getInfo*(client: DaemonRpcClient): RpcCallResult[GetInfoResponse] = 
+  ## Retrieve general information about the state of your node and the network.
+  client.doRpc("get_info", %*{}, GetInfoResponse)
+
+proc hardForkInfo*(client: DaemonRpcClient): RpcCallResult[HardForkInfoResponse] = 
+  ## Look up information regarding hard fork voting and readiness.
+  client.doRpc("hard_fork_info", %*{}, GetInfoResponse)
+
+proc setBans*(client: DaemonRpcClient, params: SetBansRequest): RpcCallResult[SetBansResponse] =
+  ## Ban another node by IP or host.
+  client.doRpc("set_bans", %*params, SetBansResponse)
+
+proc getBans*(client: DaemonRpcClient): RpcCallResult[GetBansResponse] = 
+  ## Get list of banned IPs.
+  client.doRpc("get_bans", %*{}, GetBansResponse)
+
+proc flushTxPool*(client: DaemonRpcClient, params: FlushTxPoolRequest): RpcCallResult[FlushTxPoolResponse] =
+  ## Flush tx ids from transaction pool
+  client.doRpc("flush_txpool", %*params, FlushTxPoolResponse)
+
+proc getOutputHistogram*(client: DaemonRpcClient, params: GetOutputHistogramRequest): RpcCallResult[GetOutputHistogramResponse] =
+  ## Get a histogram of output amounts. For all amounts (possibly filtered by parameters), gives the number of outputs on the chain for that amount. RingCT outputs counts as 0 amount.
+  client.doRpc("get_output_histogram", %*params, GetOutputHistogramResponse)
+
+proc getCoinbaseTxSum*(client: DaemonRpcClient, params: GetCoinbaseTxSumRequest): RpcCallResult[GetCoinbaseTxSumResponse] =
+  ## Get the coinbase amount and the fees amount for n last blocks starting at particular height
+  client.doRpc("get_coinbase_tx_sum", %*params, GetCoinbaseTxSumResponse)
+
+proc getVersion*(client: DaemonRpcClient): RpcCallResult[GetVersionResponse_Daemon] =
+  ## Give the node current version
+  client.doRpc("get_version", %*{}, GetVersionResponse_Daemon)
+
+proc getFeeEstimate*(client: DaemonRpcClient, params: GetFeeEstimateRequest): RpcCallResult[GetFeeEstimateResponse] =
+  ## Gives an estimation on fees per byte.
+  client.doRpc("get_fee_estimate", %*params, GetFeeEstimateResponse)
+
+proc getAlternateChains*(client: DaemonRpcClient): RpcCallResult[GetAlternateChainsResponse] = 
+  ## Display alternative chains seen by the node.
+  client.doRpc("get_alternate_chains", %*{}, GetAlternateChainsResponse)
+
+proc relayTx*(client: DaemonRpcClient, params: RelayTxRequest_Daemon): RpcCallResult[RelayTxResponse_Daemon] =
+  ## Relay a list of transaction IDs.
+  client.doRpc("relay_tx", %*params, RelayTxResponse_Daemon)
+
+proc syncInfo*(client: DaemonRpcClient): RpcCallResult[SyncInfoResponse] = 
+  ## Get synchronisation informations
+  client.doRpc("sync_info", %*{}, SyncInfoResponse)
+
+proc getTxpoolBacklog*(client: DaemonRpcClient): RpcCallResult[GetTxpoolBacklogResponse] =
+  ## Get all transaction pool backlog
+  client.doRpc("get_txpool_backlog", %*{}, GetTxpoolBacklogResponse)
+
+proc getOutputDistribution*(client: DaemonRpcClient, params: GetOutputDistributionRequest): RpcCallResult[GetOutputDistributionResponse] =
+  ## Get output distribution.
+  client.doRpc("get_output_distribution", %*params, GetOutputDistributionResponse)

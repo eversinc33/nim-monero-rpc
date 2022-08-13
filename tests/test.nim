@@ -75,7 +75,7 @@ suite "test calls":
     ))
     check getTransfersRequest.ok
 
-  test "CalleEstimate_tx_size_and_weight with digest auth":
+  test "Call estimate_tx_size_and_weight with digest auth":
     let client = newWalletRpcClient(password="password", username="monero")
     let estimateTxSizeAndWeightRequest = client.estimateTxSizeAndWeight(EstimateTxSizeAndWeightRequest(
       n_inputs: 1,
