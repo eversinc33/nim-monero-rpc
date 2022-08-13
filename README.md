@@ -58,7 +58,7 @@ else:
 
 ## Daemon RPC
 
-The daemon RPC client works just like the wallet RPC client. For now, only the JSON RPC methods are implemented for the node.
+The daemon RPC client works just like the wallet RPC client. So far, the *.bin-requests have not been implemented.
 
 #### Start daemon RPC server in stagenet
 

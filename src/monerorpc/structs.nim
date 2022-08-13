@@ -251,6 +251,74 @@ type
     distribution*: seq[uint]
     start_height*: uint
 
+  TransactionEntry* = object
+    as_hex*: string
+    as_json*: string
+    block_height*: uint
+    block_timestamp*: uint
+    double_spend_seen*: bool
+    in_pool*: bool
+    output_indices*: seq[uint]
+    prunable_as_hex*: string
+    prunable_hash*: string
+    pruned_as_hex*: string
+    tx_hash*: string
+
+  PeerListItem* = object
+    host*: string
+    id*: string
+    ip*: string
+    last_seen*: uint
+    port*: range[1..65535]
+
+  SpentOutputKeyImage* = object
+    id_hash*: string
+    txs_hashes*: seq[string]
+
+  Transaction* = object
+    blob_size*: uint
+    do_not_relay*: bool
+    double_spend_seen*: bool
+    fee*: uint
+    id_hash*: string
+    kept_by_block*: bool
+    last_failed_height*: uint
+    last_failed_id_hash*: string
+    last_relayed_time*: uint
+    max_used_block_height*: uint
+    max_used_block_hash*: string
+    receive_time*: uint
+    relayed*: bool
+    tx_blob*: uint
+    tx_json*: string
+
+  TxPoolHisto* = object
+    txs*: uint
+    bytes*: uint
+
+  PoolStats* = object
+    bytes_max*, bytes_med*, bytes_min*, bytes_total*: uint
+    fee_total*: uint
+    histo*: seq[TxPoolHisto]
+    histo_98pc*: uint
+    num_10m*: uint
+    num_double_spends*: uint
+    num_failing*: uint
+    num_not_relayed*: uint
+    oldest*: uint
+    txs_total*: uint
+
+  OutKey* = object
+    height*: uint
+    key*: string
+    mask*: string
+    txid*: string
+    unlocked*: bool
+
+  GetOutputsOut* = object
+    amount*: uint
+    index*: uint
+
 # Wallet RPC
 type
   GetBalanceResponse* = object of RpcResponse
@@ -1120,3 +1188,194 @@ type
     cumulative*: Option[bool]
     from_height*: Option[uint]
     to_height*: Option[uint]
+
+# Daemon HTTP RPC calls
+type
+  GetHeightResponse_Daemon* = object of RpcResponse
+    hash*: string
+    height*: uint
+    status*: string
+    untrusted*: bool
+
+  GetTransactionsResponse* = object of RpcResponse
+    missed_tx*: Option[seq[string]]
+    status*: string
+    top_hash*: string
+    txs*: seq[TransactionEntry]
+    txs_as_hex*: string
+    txs_as_json*: Option[string]
+
+  GetAltBlockHashesResponse* = object of RpcResponse
+    blks_hashes*: seq[string]
+    credits*: uint
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  IsKeyImageSpentResponse* = object of RpcResponse
+    credits*: uint
+    spent_status*: seq[range[0..2]]
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  SendRawTransactionResponse* = object of RpcResponse
+    double_spend*: bool
+    fee_too_low*: bool
+    invalid_input*: bool
+    invalid_output*: bool
+    low_mixin*: bool
+    not_rct*: bool
+    not_relayed*: bool
+    overspend*: bool
+    reason*: string
+    status*: string
+    too_big*: bool
+    untrusted*: bool
+
+  StartMiningResponse* = object of RpcResponse
+    status*: string
+    untrusted*: bool
+
+  StopMiningResponse* = object of RpcResponse
+    status*: string
+    untrusted*: bool
+
+  MiningStatusResponse* = object of RpcResponse
+    active*: bool
+    address*: string
+    bg_idle_threshold*: int
+    bg_ignore_battery*: bool
+    bg_min_idle_seconds*: int
+    bg_target*: int
+    block_reward*: int
+    block_target*: int
+    difficulty*, difficulty_top64*: uint64
+    is_background_mining_enabled*: bool
+    pow_algorithm*: string
+    speed*: uint
+    status*: string
+    threads_count*: uint
+    untrusted*: bool
+    wide_difficulty*: string
+
+  SaveBcResponse* = object of RpcResponse
+    status*: string
+    untrusted*: bool
+
+  GetPeerListResponse* = object of RpcResponse
+    gray_list*: seq[PeerListItem]
+    status*: string
+    white_list*: seq[PeerListItem]
+
+  SetLogHashRateResponse* = object of RpcResponse
+    status*: string
+    untrusted*: bool
+
+  SetLogLevelResponse* = object of RpcResponse
+    status*: string
+    untrusted*: bool
+
+  SetLogCategoriesResponse* = object of RpcResponse
+    categories*: string
+    status*: string
+    untrusted*: bool
+
+  GetTransactionPoolResponse* = object of RpcResponse
+    credits*: uint
+    spent_key_images*: seq[SignedKeyImage]
+    status*: string
+    transactions*: seq[Transaction]
+
+  GetTransactionPoolStatsResponse* = object of RpcResponse
+    credits*: uint
+    pool_stats*: PoolStats
+    status*: string
+    top_hash*: string
+    untrusted*: bool
+
+  StopDaemonResponse* = object of RpcResponse
+    status*: string
+
+  GetLimitResponse* = object of RpcResponse
+    limit_down*: uint
+    limit_up*: uint
+    status*: string
+    untrusted*: bool
+
+  SetLimitResponse* = object of RpcResponse
+    limit_down*: uint
+    limit_up*: uint
+    status*: string
+    untrusted*: bool
+
+  OutPeersResponse* = object of RpcResponse
+    out_peers*: uint
+    status*: string
+    untrusted*: bool
+
+  InPeersResponse* = object of RpcResponse
+    in_peers*: uint
+    status*: string
+    untrusted*: bool
+
+  GetOutsResponse* = object of RpcResponse
+    outs*: seq[OutKey]
+    status*: string
+    untrusted*: bool
+
+  UpdateResponse* = object of RpcResponse
+    auto_uri*: string
+    hash*: string
+    path*: string
+    status*: string
+    untrusted*: bool
+    update*: bool
+    user_uri*: string
+    version*: string
+
+type 
+  GetTransactionsRequest* = object
+    txs_hashes*: seq[string]
+    decode_as_json*: Option[bool]
+    prune*: Option[bool]
+
+  IsKeyImageSpentRequest* = object
+    key_images*: seq[string]
+
+  SendRawTransactionRequest* = object
+    tx_as_hex*: string
+    do_not_relay*: bool
+
+  StartMiningRequest_Daemon* = object
+    do_background_mining*: bool
+    ignore_battery*: bool
+    miner_address*: string
+    threads_count*: uint
+  
+  SetLogHashRateRequest* = object    
+    visible*: bool
+
+  SetLogLevelRequest* = object
+    level*: range[0..4]
+
+  SetLogCategoriesRequest* = object
+    categories*: Option[string]
+
+  SetLimitRequest* = object
+    limit_down*: int
+    limit_up*: int
+
+  OutPeersRequest* = object
+    out_peers*: uint
+  
+  InPeersRequest* = object
+    in_peers*: uint
+
+  GetOutsRequest* = object
+    outputs*: seq[GetOutputsOut]
+    get_txid*: bool
+
+  UpdateRequest* = object
+    command*: UpdateCommand
+    path*: Option[string]

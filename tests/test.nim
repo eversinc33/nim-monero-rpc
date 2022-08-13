@@ -95,4 +95,23 @@ suite "monero daemon rpc":
     let r = client.getVersion()
     check r.ok
 
+  test "Call /get_height":
+    let client = newDaemonRpcClient()
+    let r = client.getHeight()
+    check r.data.status == "OK"
+    check r.ok
+
+  test "Call /start_mining":
+    let client = newDaemonRpcClient()
+    let r = client.startMining(
+      StartMiningRequest_Daemon(
+        do_background_mining: false,
+        ignore_battery: false,
+        miner_address: "TEST",
+        threads_count: 1
+      )
+    )
+    check r.ok
+    check r.data.status == "Failed, wrong address"
+
 # TODO: more tests

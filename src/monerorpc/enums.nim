@@ -16,3 +16,6 @@ type
 
     NetType* = enum
         Mainnet = "mainnet", Stagenet = "stagenet", Testnet = "testnet"
+
+    UpdateCommand* = enum
+        Check = "check", Download = "download"
