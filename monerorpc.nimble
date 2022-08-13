@@ -1,8 +1,8 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.1.1"
 author        = "eversinc33"
-description   = "Library for interacting with Monero wallets via RPC."
+description   = "Library for interacting with Monero wallets and nodes via RPC."
 license       = "MIT"
 srcDir        = "src"
 

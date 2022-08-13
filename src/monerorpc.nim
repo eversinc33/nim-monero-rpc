@@ -35,7 +35,7 @@ proc getDigestAuthHeader(client: MoneroRpcClient, uri: string, requestMethod: Ht
   
   # check if authentication is enabled
   if authenticateHeader.toString == "":
-    raise newException(Exception, "Wallet did not send a www-authenticate header")
+    raise newException(Exception, "Server did not send a www-authenticate header")
 
   # parse header
   let realm = authenticateHeader.toString.split("realm=")[1].split('"')[1]

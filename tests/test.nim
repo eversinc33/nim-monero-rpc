@@ -1,8 +1,8 @@
 import unittest
 import monerorpc, options
 
-suite "test calls":
-  echo "Running tests for monero-nim"
+suite "monero wallet rpc":
+  echo "Running tests for wallet"
   echo "Make sure you are running a monero-wallet-rpc server on 127.0.0.1:18082 with --rpc-login monero:password (see README)."
   echo "====================================================="
 
@@ -85,4 +85,14 @@ suite "test calls":
     ))
     check estimateTxSizeAndWeightRequest.ok
 
-  # TODO: more tests
+suite "monero daemon rpc":
+  echo "Running tests for daemon"
+  echo "Make sure you are running a monero-daemon-rpc server on 127.0.0.1:18081 with --rpc-login monero:password (see README)."
+  echo "====================================================="
+
+  test "Call get_version":
+    let client = newDaemonRpcClient()
+    let r = client.getVersion()
+    check r.ok
+
+# TODO: more tests
